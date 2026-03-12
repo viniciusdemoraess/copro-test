@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({
             >
               Quem Somos
             </a>
-            <a
+            {/* <a
               href="#linha-temporal"
               onClick={(e) => {
                 handleAnchorClick(e, '#linha-temporal');
@@ -201,7 +201,7 @@ const Header: React.FC<HeaderProps> = ({
               className="block text-primary font-bold text-base hover:text-primary/80 transition-colors py-2"
             >
               Linha Temporal
-            </a>
+            </a> */}
             <a
               href="#podcast"
               onClick={(e) => {

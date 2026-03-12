@@ -184,7 +184,7 @@ const CarouselSlideModal: React.FC<CarouselSlideModalProps> = ({
             <Label htmlFor="title">Título *</Label>
             <Input
               id="title"
-              placeholder="Ex: Economia de 15% em Insumos"
+              placeholder="Ex: Economia na aquisição"
               {...form.register('title')}
               disabled={isSubmitting}
             />

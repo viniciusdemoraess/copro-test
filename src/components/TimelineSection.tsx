@@ -36,7 +36,7 @@ const TimelineSection: React.FC = () => {
   return (
     <>
       {/* Timeline Section 1 */}
-      <section id="linha-temporal" ref={sectionRef} className="w-full bg-[#0e873d] py-8 md:py-12 overflow-hidden">
+      {/* <section id="linha-temporal" ref={sectionRef} className="w-full bg-[#0e873d] py-8 md:py-12 overflow-hidden">
         <div className="w-full max-w-6xl mx-auto px-4 md:px-8">
           <div
             ref={image1Ref}
@@ -53,7 +53,7 @@ const TimelineSection: React.FC = () => {
             />
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Wave Divider between sections */}
       <div className="w-full overflow-hidden bg-[#0e873d]">
@@ -72,7 +72,7 @@ const TimelineSection: React.FC = () => {
       </div>
 
       {/* Timeline Section 2 */}
-      <section className="w-full bg-[#81b62d] py-8 md:py-12 overflow-hidden">
+      {/* <section className="w-full bg-[#81b62d] py-8 md:py-12 overflow-hidden">
         <div className="w-full max-w-6xl mx-auto px-4 md:px-8">
           <div
             ref={image2Ref}
@@ -89,7 +89,7 @@ const TimelineSection: React.FC = () => {
             />
           </div>
         </div>
-      </section>
+      </section> */}
     </>
   );
 };

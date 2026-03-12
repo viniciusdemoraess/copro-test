@@ -55,7 +55,7 @@ const WhyChoose: React.FC = () => {
   return (
     <>
       {/* Seção Linha Temporal */}
-      <section className="bg-background py-12 md:py-16 lg:py-20 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20">
+      {/* <section className="bg-background py-12 md:py-16 lg:py-20 px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-primary text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 md:mb-12">
             Linha Temporal
@@ -76,7 +76,7 @@ const WhyChoose: React.FC = () => {
             />
           </div>
         </div>
-      </section>
+      </section> */}
 
       <div className="bg-accent self-center z-10 flex w-full max-w-4xl mx-auto flex-col items-stretch text-3xl sm:text-4xl md:text-5xl text-accent-foreground font-bold justify-center mt-16 md:mt-24 lg:mt-32 xl:mt-[198px] px-6 sm:px-10 md:px-12 lg:px-[59px] py-6 md:py-8 lg:py-[34px]">
         <h2 className="text-center">Nossas Entregas</h2>
