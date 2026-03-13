@@ -44,12 +44,6 @@ const VideoPopup: React.FC = () => {
     setIsOpen(false);
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      handleClose();
-    }
-  };
-
   // Don't render if no popup from CMS or popup is not open
   if (!popup || !isOpen) return null;
 
@@ -59,21 +53,23 @@ const VideoPopup: React.FC = () => {
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in"
-      onClick={handleOverlayClick}
     >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+      {/* Overlay - clicável para fechar */}
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={handleClose} />
 
-      {/* Video Container */}
-      <div className="relative w-full max-w-4xl aspect-video bg-black rounded-lg shadow-2xl overflow-hidden animate-scale-in">
-        {/* Close button */}
+      {/* Wrapper relativo para posicionar o botão fora do overflow-hidden */}
+      <div className="relative w-full max-w-4xl">
+        {/* Close button - fora do overflow-hidden, visível em mobile */}
         <button
           onClick={handleClose}
-          className="absolute -top-12 right-0 sm:top-2 sm:right-2 z-10 p-2 bg-background/90 hover:bg-background text-foreground rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+          className="absolute -top-10 right-0 z-10 p-2 bg-background/90 hover:bg-background text-foreground rounded-full shadow-lg transition-all duration-200 hover:scale-110"
           aria-label="Fechar vídeo"
         >
           <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
+
+      {/* Video Container */}
+      <div className="relative w-full aspect-video bg-black rounded-lg shadow-2xl overflow-hidden animate-scale-in">
 
         {/* Loading spinner */}
         {isLoading && (
@@ -103,6 +99,7 @@ const VideoPopup: React.FC = () => {
             title={popup.title}
           />
         )}
+      </div>
       </div>
     </div>
   );
