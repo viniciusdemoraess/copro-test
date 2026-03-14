@@ -52,14 +52,14 @@ const CooperativeBenefits = () => {
             </div>
 
             {/* Right Column - Image with Decorative Elements */}
-            {/* <div className="relative flex items-end justify-center lg:justify-end self-end">
+            <div className="relative flex items-end justify-center lg:justify-end self-end">
               <img
                 src={cooperadoImage}
                 alt="Cooperado satisfeito representando os benefícios da cooperativa"
                 loading="lazy"
                 className="relative z-10 w-auto h-[300px] sm:h-[350px] md:h-[450px] lg:h-[500px] object-contain object-bottom drop-shadow-2xl"
               />
-            </div> */}
+            </div>
           </div>
         </div>
       </section>
