@@ -73,6 +73,7 @@ const Header: React.FC<HeaderProps> = ({
               onClick={() => navigate('/associacao')}
               className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[10px] whitespace-nowrap flex-shrink-0"
             >
+              <Star className="w-3.5 h-3.5" fill="currentColor" />
               <span>Seja <span className="font-bold">Cooperado</span></span>
             </Button>
 
@@ -97,6 +98,7 @@ const Header: React.FC<HeaderProps> = ({
               onClick={() => navigate('/associacao')}
               className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm sm:text-base whitespace-nowrap transition-all duration-300 hover:scale-105"
             >
+              <Star className="w-5 h-5" fill="currentColor" />
               <span>Seja <span className="font-bold">Cooperado</span></span>
             </Button>
 
