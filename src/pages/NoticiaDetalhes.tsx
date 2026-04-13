@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
-import { useNewsBySlug } from '@/hooks/useNews';
+import { useNewsBySlug, getNewsImages } from '@/hooks/useNews';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Calendar, ArrowLeft } from 'lucide-react';
+import NewsImageCarousel from '@/components/NewsImageCarousel';
 
 const NoticiaDetalhes: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -67,11 +68,20 @@ const NoticiaDetalhes: React.FC = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               <div className="mb-8">
-                <img
-                  src={news.image_url}
-                  alt={news.title}
-                  className="w-full h-auto rounded-xl shadow-lg"
-                />
+                {getNewsImages(news).length > 1 ? (
+                  <div className="w-full h-96 rounded-xl overflow-hidden shadow-lg">
+                    <NewsImageCarousel
+                      images={getNewsImages(news)}
+                      alt={news.title}
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src={getNewsImages(news)[0]}
+                    alt={news.title}
+                    className="w-full h-auto rounded-xl shadow-lg"
+                  />
+                )}
               </div>
 
               <article

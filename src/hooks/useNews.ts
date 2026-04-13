@@ -9,12 +9,20 @@ export interface News {
   summary: string;
   content: string;
   image_url: string;
+  image_urls: string[] | null;
   slug: string;
   active: boolean;
   order_position: number;
   created_by: string | null;
   created_at: string | null;
   updated_at: string | null;
+}
+
+/** Returns the list of images for a news item, falling back to image_url for old records */
+export function getNewsImages(news: News): string[] {
+  if (news.image_urls && news.image_urls.length > 0) return news.image_urls;
+  if (news.image_url) return [news.image_url];
+  return [];
 }
 
 export function useNews(limit?: number) {

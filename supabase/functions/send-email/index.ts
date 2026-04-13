@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createTransport } from "nodemailer"
+import { createTransport } from "npm:nodemailer@6.9.15"
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 }
 
 interface EmailRequest {
@@ -20,51 +21,86 @@ interface EmailResponse {
   error?: string
 }
 
+function getEnv(name: string): string | undefined {
+  try {
+    // Supabase Edge / Deno
+    if (typeof Deno !== "undefined" && Deno.env) {
+      const value = Deno.env.get(name)
+      if (value) return value
+    }
+  } catch {
+    // ignora
+  }
+
+  try {
+    // Vercel / Node
+    if (typeof process !== "undefined" && process.env) {
+      const value = process.env[name]
+      if (value) return value
+    }
+  } catch {
+    // ignora
+  }
+
+  return undefined
+}
+
 function createSmtpTransporter() {
-  const smtpHost = Deno.env.get('SMTP_HOST') || 'smtp.office365.com'
-  const smtpPort = parseInt(Deno.env.get('SMTP_PORT') || '587')
-  const smtpUser = Deno.env.get('SMTP_USER') || 'site@cooprosoja.com.br'
-  const smtpPass = Deno.env.get('SMTP_PASS') || 'Sje@@2817'
-  const smtpFrom = Deno.env.get('SMTP_FROM') || '"Cooprosoja" <site@cooprosoja.com.br>'
+
+  const smtpHost = getEnv("SMTP_HOST") || "smtp.gmail.com"
+  const smtpPort = Number(getEnv("SMTP_PORT") || "587")
+  const smtpUser = getEnv("SMTP_USER")
+  const smtpPass = getEnv("SMTP_PASS")
+  const smtpFrom = getEnv("SMTP_FROM") || smtpUser
+
+  if (!smtpUser || !smtpPass) {
+    throw new Error("SMTP_USER e SMTP_PASS precisam estar configurados.")
+  }
+
+  const transporter = createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: false, // 587 = STARTTLS
+    requireTLS: true,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass, // senha de app do Gmail
+    },
+  })
 
   return {
-    transporter: createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: false,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      tls: {
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false,
-      },
-    }),
+    transporter,
     from: smtpFrom,
   }
 }
 
 function validateEmailRequest(data: unknown): EmailRequest | null {
-  if (!data || typeof data !== 'object') return null
-  
+  if (!data || typeof data !== "object") return null
+
   const req = data as Record<string, unknown>
   const to = req.to
   const subject = req.subject
   const html = req.html
   const text = req.text
 
-  if (typeof to !== 'string' || !to.trim()) return null
-  if (typeof subject !== 'string' || !subject.trim()) return null
-  if (!html && !text) return null
-  if (html && typeof html !== 'string') return null
-  if (text && typeof text !== 'string') return null
+  if (typeof to !== "string" || !to.trim()) return null
+  if (typeof subject !== "string" || !subject.trim()) return null
+  if (html === undefined && text === undefined) return null
+  if (html !== undefined && typeof html !== "string") return null
+  if (text !== undefined && typeof text !== "string") return null
 
-  return { to, subject, html, text } as EmailRequest
+  return {
+    to: to.trim(),
+    subject: subject.trim(),
+    html: typeof html === "string" ? html : undefined,
+    text: typeof text === "string" ? text : undefined,
+  }
 }
 
 async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
   const { transporter, from } = createSmtpTransporter()
+
+  await transporter.verify()
 
   const info = await transporter.sendMail({
     from,
@@ -76,33 +112,30 @@ async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
 
   return {
     success: true,
-    messageId: info.messageId,
-    message: 'Email enviado com sucesso!'
+    message: "Email enviado com sucesso!",
   }
 }
 
-function createErrorResponse(error: string, status: number = 500): Response {
-  return new Response(
-    JSON.stringify({ success: false, error }),
-    {
-      status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    }
-  )
-}
-
-function createSuccessResponse(data: EmailResponse): Response {
-  return new Response(
-    JSON.stringify(data),
-    {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    }
-  )
+function createJsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  })
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders })
+  }
+
+  if (req.method !== "POST") {
+    return createJsonResponse(
+      { success: false, error: "Método não permitido" },
+      405,
+    )
   }
 
   try {
@@ -110,15 +143,29 @@ serve(async (req) => {
     const emailRequest = validateEmailRequest(body)
 
     if (!emailRequest) {
-      return createErrorResponse('Campos obrigatórios: to, subject, e (html ou text)', 400)
+      return createJsonResponse(
+        {
+          success: false,
+          error: "Campos obrigatórios: to, subject, e (html ou text)",
+        },
+        400,
+      )
     }
 
     const result = await sendEmail(emailRequest)
-    return createSuccessResponse(result)
-
+    return createJsonResponse(result, 200)
   } catch (error) {
-    console.error('Erro ao enviar email:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Erro ao enviar email'
-    return createErrorResponse(errorMessage, 500)
+    console.error("Erro ao enviar email:", error)
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Erro ao enviar email"
+
+    return createJsonResponse(
+      {
+        success: false,
+        error: errorMessage,
+      },
+      500,
+    )
   }
 })

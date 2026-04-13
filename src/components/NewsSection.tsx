@@ -1,9 +1,10 @@
 import React from 'react';
-import { useNews } from '@/hooks/useNews';
+import { useNews, getNewsImages } from '@/hooks/useNews';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from 'lucide-react';
+import NewsImageCarousel from '@/components/NewsImageCarousel';
 
 const NewsSection: React.FC = () => {
   const { data: news, isLoading } = useNews(3);
@@ -50,10 +51,10 @@ const NewsSection: React.FC = () => {
                   className="bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col"
                 >
                   <div className="relative h-64 overflow-hidden">
-                    <img
-                      src={item.image_url}
+                    <NewsImageCarousel
+                      images={getNewsImages(item)}
                       alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      imgClassName="transition-transform duration-300 hover:scale-105"
                     />
                   </div>
                   <div className="p-6 flex-1 flex flex-col">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Edit, Eye, EyeOff, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -30,6 +30,7 @@ import {
   useUpdateNews,
   useDeleteNews,
   useUploadNewsImage,
+  getNewsImages,
   News,
 } from '@/hooks/useNews';
 
@@ -37,8 +38,9 @@ export default function Noticias() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNews, setEditingNews] = useState<News | null>(null);
   const [deletingNews, setDeletingNews] = useState<News | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+
+  // Multiple images state: list of { file?: File, preview: string, url?: string }
+  const [images, setImages] = useState<{ file?: File; preview: string; url?: string }[]>([]);
 
   const { data: newsList, isLoading } = useNewsAdmin();
   const createMutation = useCreateNews();
@@ -48,15 +50,14 @@ export default function Noticias() {
 
   const handleAdd = () => {
     setEditingNews(null);
-    setImageFile(null);
-    setImagePreview('');
+    setImages([]);
     setIsModalOpen(true);
   };
 
   const handleEdit = (news: News) => {
     setEditingNews(news);
-    setImageFile(null);
-    setImagePreview(news.image_url);
+    const existingImages = getNewsImages(news).map((url) => ({ preview: url, url }));
+    setImages(existingImages);
     setIsModalOpen(true);
   };
 
@@ -67,16 +68,23 @@ export default function Noticias() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newEntries = files.map((file) => {
+      const preview = URL.createObjectURL(file);
+      return { file, preview };
+    });
+    setImages((prev) => [...prev, ...newEntries]);
+    // Reset input so same files can be re-added if needed
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => {
+      const entry = prev[index];
+      if (entry.file) URL.revokeObjectURL(entry.preview);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const generateSlug = (title: string) => {
@@ -94,17 +102,23 @@ export default function Noticias() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    let imageUrl = editingNews?.image_url || '';
-
-    if (imageFile) {
-      imageUrl = await uploadMutation.mutateAsync(imageFile);
-    }
-
-    if (!imageUrl && !editingNews) {
-      alert('Por favor, selecione uma imagem');
+    if (images.length === 0) {
+      alert('Por favor, adicione pelo menos uma imagem');
       return;
     }
 
+    // Upload any new files; keep existing URLs as-is
+    const uploadedUrls: string[] = [];
+    for (const entry of images) {
+      if (entry.file) {
+        const url = await uploadMutation.mutateAsync(entry.file);
+        uploadedUrls.push(url);
+      } else if (entry.url) {
+        uploadedUrls.push(entry.url);
+      }
+    }
+
+    const firstImageUrl = uploadedUrls[0];
     const title = formData.get('title') as string;
     const slug = editingNews?.slug || generateSlug(title);
 
@@ -112,7 +126,8 @@ export default function Noticias() {
       title,
       summary: formData.get('summary') as string,
       content: formData.get('content') as string,
-      image_url: imageUrl,
+      image_url: firstImageUrl,
+      image_urls: uploadedUrls,
       slug,
       active: formData.get('active') === 'on',
       order_position: 0,
@@ -126,8 +141,7 @@ export default function Noticias() {
       }
       setIsModalOpen(false);
       setEditingNews(null);
-      setImageFile(null);
-      setImagePreview('');
+      setImages([]);
     } catch (error) {
     }
   };
@@ -141,6 +155,9 @@ export default function Noticias() {
       year: 'numeric',
     });
   };
+
+  const isSubmitting =
+    createMutation.isPending || updateMutation.isPending || uploadMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -171,7 +188,7 @@ export default function Noticias() {
               className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 border rounded-lg bg-card hover:shadow-md transition-shadow"
             >
               <img
-                src={news.image_url}
+                src={getNewsImages(news)[0]}
                 alt={news.title}
                 className="w-full sm:w-32 h-32 object-cover rounded-lg flex-shrink-0"
               />
@@ -187,6 +204,11 @@ export default function Noticias() {
                     <span className="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 rounded-full flex items-center gap-1">
                       <EyeOff className="w-3 h-3" />
                       Inativo
+                    </span>
+                  )}
+                  {getNewsImages(news).length > 1 && (
+                    <span className="px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
+                      {getNewsImages(news).length} imagens
                     </span>
                   )}
                 </div>
@@ -277,21 +299,52 @@ export default function Noticias() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="image">Imagem *</Label>
+              {/* Multiple images */}
+              <div className="space-y-3">
+                <Label>
+                  Imagens *{' '}
+                  <span className="text-muted-foreground font-normal text-xs">
+                    (a primeira será a capa; adicione mais de uma para exibir em carrossel)
+                  </span>
+                </Label>
+
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {images.map((img, i) => (
+                      <div key={i} className="relative group">
+                        <img
+                          src={img.preview}
+                          alt={`Imagem ${i + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                        {i === 0 && (
+                          <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+                            capa
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(i)}
+                          className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label="Remover imagem"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <Input
                   id="image"
                   type="file"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  multiple
+                  onChange={handleImagesChange}
                 />
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full max-w-md h-48 object-cover rounded-lg border mt-2"
-                  />
-                )}
+                <p className="text-xs text-muted-foreground">
+                  Você pode selecionar múltiplos arquivos de uma vez ou adicionar em várias etapas.
+                </p>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t">
@@ -319,11 +372,12 @@ export default function Noticias() {
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={createMutation.isPending || updateMutation.isPending || uploadMutation.isPending}
-              >
-                {editingNews ? 'Salvar Alterações' : 'Criar Notícia'}
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? 'Salvando...'
+                  : editingNews
+                  ? 'Salvar Alterações'
+                  : 'Criar Notícia'}
               </Button>
             </DialogFooter>
           </form>

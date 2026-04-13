@@ -513,6 +513,7 @@ export type Database = {
           created_by: string | null
           id: string
           image_url: string
+          image_urls: string[] | null
           order_position: number
           slug: string
           summary: string
@@ -526,6 +527,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           image_url: string
+          image_urls?: string[] | null
           order_position?: number
           slug: string
           summary: string
@@ -539,6 +541,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           image_url?: string
+          image_urls?: string[] | null
           order_position?: number
           slug?: string
           summary?: string
