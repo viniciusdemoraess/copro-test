@@ -170,20 +170,21 @@ const SimplifiedAssociationForm: React.FC = () => {
       const userTemplate = templates?.find(t => t.type === 'user_confirmation');
       const adminTemplate = templates?.find(t => t.type === 'admin_notification');
 
+      const CC_FIXO = 'fabiana.lopes@cooprosoja.com.br';
       const emailPromises = [];
 
       if (userTemplate) {
         const subject = renderTemplate(userTemplate.subject, variables);
         const html = renderTemplate(userTemplate.html_body, variables);
         const text = userTemplate.text_body ? renderTemplate(userTemplate.text_body, variables) : undefined;
-        emailPromises.push(sendEmail({ to: formData.email, subject, html, text }));
+        emailPromises.push(sendEmail({ to: formData.email, cc: CC_FIXO, subject, html, text }));
       }
 
       if (adminTemplate) {
         const subject = renderTemplate(adminTemplate.subject, variables);
         const html = renderTemplate(adminTemplate.html_body, variables);
         const text = adminTemplate.text_body ? renderTemplate(adminTemplate.text_body, variables) : undefined;
-        emailPromises.push(sendEmail({ to: emailCooprosoja, subject, html, text }));
+        emailPromises.push(sendEmail({ to: emailCooprosoja, cc: CC_FIXO, subject, html, text }));
       }
 
       await Promise.allSettled(emailPromises);

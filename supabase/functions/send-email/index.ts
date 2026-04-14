@@ -9,6 +9,7 @@ const corsHeaders = {
 
 interface EmailRequest {
   to: string
+  cc?: string | string[]
   subject: string
   html?: string
   text?: string
@@ -79,6 +80,7 @@ function validateEmailRequest(data: unknown): EmailRequest | null {
 
   const req = data as Record<string, unknown>
   const to = req.to
+  const cc = req.cc
   const subject = req.subject
   const html = req.html
   const text = req.text
@@ -89,8 +91,18 @@ function validateEmailRequest(data: unknown): EmailRequest | null {
   if (html !== undefined && typeof html !== "string") return null
   if (text !== undefined && typeof text !== "string") return null
 
+  // cc pode ser string, array de strings ou ausente
+  let parsedCc: string | string[] | undefined
+  if (typeof cc === "string" && cc.trim()) {
+    parsedCc = cc.trim()
+  } else if (Array.isArray(cc)) {
+    parsedCc = cc.filter((c): c is string => typeof c === "string" && !!c.trim())
+    if (parsedCc.length === 0) parsedCc = undefined
+  }
+
   return {
     to: to.trim(),
+    cc: parsedCc,
     subject: subject.trim(),
     html: typeof html === "string" ? html : undefined,
     text: typeof text === "string" ? text : undefined,
@@ -102,9 +114,10 @@ async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
 
   await transporter.verify()
 
-  const info = await transporter.sendMail({
+  await transporter.sendMail({
     from,
     to: request.to,
+    cc: request.cc,
     subject: request.subject,
     text: request.text,
     html: request.html,

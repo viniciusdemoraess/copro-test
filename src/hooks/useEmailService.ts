@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client'
 
 export interface SendEmailParams {
   to: string
+  cc?: string | string[]
   subject: string
   html?: string
   text?: string
