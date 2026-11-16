@@ -103,6 +103,12 @@ export function StepColheitadeira({ wizard }: { wizard: CalculadoraWizard }) {
                       {cls.plataforma_pes && `${cls.plataforma_pes} pés`}
                       {cls.plataforma_pes && cls.potencia && ' • '}
                       {cls.potencia}
+                      {cls.preco_compra && (
+                        <>
+                          {(cls.plataforma_pes || cls.potencia) && ' • '}
+                          R$ {cls.preco_compra.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </>
+                      )}
                     </span>
                   </div>
                 </SelectItem>
