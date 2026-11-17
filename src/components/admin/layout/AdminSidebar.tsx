@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import type { MenuItem } from '@/types/dashboard';
-import { BarChart3, BookOpen, ChevronDown, ChevronRight, FileText, FolderOpen, Home, Image, Mail, MessageSquare, Mic, Newspaper, Settings, Shield, UserCog, Users, Video } from 'lucide-react';
+import { BarChart3, BookOpen, ChevronDown, ChevronRight, Database, FileText, FolderOpen, Home, Image, Mail, MessageSquare, Mic, Newspaper, Settings, Shield, UserCog, Users, Video } from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -79,6 +79,13 @@ const menuItems: MenuItem[] = [
     label: 'Indicadores',
     icon: BarChart3,
     path: '/admin/indicadores',
+  },
+  {
+    id: 'dados-calculadora',
+    label: 'Dados da Calculadora',
+    icon: Database,
+    path: '/admin/dados-calculadora',
+    adminOnly: true,
   },
   {
     id: 'usuarios',

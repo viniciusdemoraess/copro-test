@@ -1,3 +1,48 @@
+// Format BRL currency: R$ 3.500.000,00
+export function formatBRL(value: number | null | undefined): string {
+  const num = typeof value === 'number' && !Number.isNaN(value) ? value : 0;
+  return num.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+// Format BRL without the currency symbol: 3.500.000,00
+export function formatBRLPlain(value: number | null | undefined): string {
+  const num = typeof value === 'number' && !Number.isNaN(value) ? value : 0;
+  return num.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+// Parse a BRL/pt-BR formatted string back to a float (unmasking).
+// Accepts "R$ 3.500.000,00", "3.500.000,00", "125,00", "60" etc.
+export function parseBRL(masked: string): number | null {
+  if (!masked) return null;
+  const cleaned = masked
+    .replace(/[^\d.,-]/g, '') // keep digits, dot, comma, minus
+    .replace(/\./g, '') // remove thousand separators
+    .replace(',', '.'); // decimal comma -> dot
+  if (cleaned === '' || cleaned === '-') return null;
+  const value = Number(cleaned);
+  return Number.isNaN(value) ? null : value;
+}
+
+// Format a plain number with pt-BR grouping (e.g. produtividade 1.234,5 sc/ha)
+export function formatNumber(
+  value: number | null | undefined,
+  maxFractionDigits = 2
+): string {
+  const num = typeof value === 'number' && !Number.isNaN(value) ? value : 0;
+  return num.toLocaleString('pt-BR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxFractionDigits,
+  });
+}
+
 // Format CPF: 123.456.789-00
 export function formatCPF(cpf: string): string {
   const digits = cpf.replace(/\D/g, '');

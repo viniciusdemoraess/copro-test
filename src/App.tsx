@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Association from "./pages/Association";
 import Servicos from "./pages/Servicos";
+
+// Calculadora de viabilidade (dialog/pop-up aberto pelo menu)
+import { CalculadoraProvider } from "./features/calculadora/CalculadoraContext";
+import { CalculadoraDialogLoader } from "./features/calculadora/CalculadoraDialogLoader";
 import NoticiasPublic from "./pages/Noticias";
 import NoticiaDetalhes from "./pages/NoticiaDetalhes";
 import NotFound from "./pages/NotFound";
@@ -29,6 +33,8 @@ import Podcasts from "./pages/admin/Podcasts";
 import CardsInformativos from "./pages/admin/CardsInformativos";
 import Candidatos from "./pages/admin/Candidatos";
 import Indicadores from "./pages/admin/Indicadores";
+import { DadosCalculadora } from "./pages/admin/DadosCalculadora";
+import CalculadoraPage from "./pages/Calculadora";
 import Usuarios from "./pages/admin/Usuarios";
 import MeuPerfil from "./pages/admin/MeuPerfil";
 import ConfiguracoesSite from "./pages/admin/ConfiguracoesSite";
@@ -45,6 +51,7 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
+        <CalculadoraProvider>
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
@@ -71,6 +78,16 @@ const App = () => (
             } />
             <Route path="/noticias" element={<NoticiasPublic />} />
             <Route path="/noticias/:slug" element={<NoticiaDetalhes />} />
+            <Route path="/calculadora" element={
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">
+                  <CalculadoraPage />
+                </main>
+                <Footer />
+                <WhatsAppButton />
+              </div>
+            } />
 
             {/* Admin auth routes (no layout) */}
             <Route path="/admin/login" element={<Login />} />
@@ -101,6 +118,7 @@ const App = () => (
               <Route path="noticias" element={<NoticiasAdmin />} />
               <Route path="candidatos" element={<Candidatos />} />
               <Route path="indicadores" element={<Indicadores />} />
+              <Route path="dados-calculadora" element={<DadosCalculadora />} />
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="configuracoes" element={<ConfiguracoesSite />} />
               <Route path="email-templates" element={<EmailTemplates />} />
@@ -111,8 +129,10 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CalculadoraDialogLoader />
           <Analytics />
         </BrowserRouter>
+        </CalculadoraProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

@@ -3,6 +3,7 @@ import { usePublicSetting } from '@/hooks/useSiteSettings';
 import { Instagram, Menu, Phone, Star, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useCalculadora } from '@/features/calculadora/CalculadoraContext';
 
 interface HeaderProps {
   showAssociationForm?: boolean;
@@ -15,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { openCalculadora } = useCalculadora();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const { value: contactPhone } = usePublicSetting('contact_phone');
@@ -165,6 +167,13 @@ const Header: React.FC<HeaderProps> = ({
             <Link to="/servicos" className={`hover:text-primary/80 transition-colors whitespace-nowrap ${isActive('/servicos') ? 'text-accent' : ''}`}>
               Serviços
             </Link>
+            <button
+              type="button"
+              onClick={openCalculadora}
+              className="hover:text-primary/80 transition-colors whitespace-nowrap font-bold"
+            >
+              Calculadora
+            </button>
           </nav>
 
           {/* Mobile Navigation Button */}
@@ -227,6 +236,16 @@ const Header: React.FC<HeaderProps> = ({
             >
               Serviços
             </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileNavOpen(false);
+                openCalculadora();
+              }}
+              className="block w-full text-left text-primary font-bold text-base hover:text-primary/80 transition-colors py-2"
+            >
+              Calculadora
+            </button>
           </div>
         )}
       </div>
