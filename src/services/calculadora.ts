@@ -36,7 +36,7 @@ export function calcularViabilidade(
   const hectaresPorDia = rendimento * horasPorDia; // rendimento em ha/hora × horas/dia
 
   // Estimar custo de operador (padrão: R$ 5.000/mês se máquina ativa)
-  const mesesOperacao = areaHectares > 0 ? 6 : 0;
+  const mesesOperacao = areaHectares > 0 ? 1 : 0; // 1 mês de operação
   const salarioMensalOperador = 5000;
   const encargosTrabalhistosPercent = 32.14; // 32,14% de encargos trabalhistas
   const custoOperadorComEncargos = salarioMensalOperador * (1 + encargosTrabalhistosPercent / 100);
