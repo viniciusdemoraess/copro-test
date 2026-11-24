@@ -30,9 +30,17 @@ export function calcularViabilidade(
   const custoManutencaoAnual = (custoInicial * manterPercent) / 100;
   const custoSeguroAnual = (custoInicial * seguroPercent) / 100;
 
-  // Estimar custo de operador (padrão: R$ 3.000/mês se máquina ativa)
+  // Capacidade de colheita
+  const horasPorDia = 6; // horas de operação por dia
+  const diasPrazoPorSafra = 15; // dias disponíveis para colheita por safra
+  const hectaresPorDia = rendimento * horasPorDia; // rendimento em ha/hora × horas/dia
+
+  // Estimar custo de operador (padrão: R$ 5.000/mês se máquina ativa)
   const mesesOperacao = areaHectares > 0 ? 6 : 0;
-  const custoOperadorAnual = mesesOperacao * 3000;
+  const salarioMensalOperador = 5000;
+  const encargosTrabalhistosPercent = 32.14; // 32,14% de encargos trabalhistas
+  const custoOperadorComEncargos = salarioMensalOperador * (1 + encargosTrabalhistosPercent / 100);
+  const custoOperadorAnual = mesesOperacao * custoOperadorComEncargos;
 
   const custosAnuais =
     custoAmortizadoAnual +
@@ -126,6 +134,10 @@ export function calcularViabilidade(
       potencia: classe.potencia || 'Não informado',
       horasOperacaoPorAno: Math.round(horasOperacaoPorAno * 10) / 10,
       horasNecessariasPorAno: Math.round(horasOperacaoPorAno * 10) / 10,
+      horasPorDia,
+      diasPrazoPorSafra,
+      hectaresPorDia: Math.round(hectaresPorDia * 10) / 10,
+      capacidadeColheitaPorSafra: Math.round(hectaresPorDia * diasPrazoPorSafra * 10) / 10,
     },
   };
 }

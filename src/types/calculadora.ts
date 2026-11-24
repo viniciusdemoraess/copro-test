@@ -53,5 +53,9 @@ export interface CalculadoraDetalhes {
     potencia: string;
     horasOperacaoPorAno: number;
     horasNecessariasPorAno: number;
+    horasPorDia: number;
+    diasPrazoPorSafra: number;
+    hectaresPorDia: number;
+    capacidadeColheitaPorSafra: number;
   };
 }
