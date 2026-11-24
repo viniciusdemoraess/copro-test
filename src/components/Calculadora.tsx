@@ -9,14 +9,25 @@ import { AlertCircle, CheckCircle } from 'lucide-react';
 
 const VALORES_PADRAO: CalculadoraInputs = {
   classeId: '874bf276-3fa0-4d59-9bb7-c07ecb9e5597',
-  areaHectares: 100,
-  producaoSoja: 5000,
-  producaoMilho: 3000,
-  margemLucroSoja: 40,
-  margemLucroMilho: 35,
-  custoTerceirizacao: 150,
-  precoVendaSoja: 60,
-  precoVendaMilho: 45,
+  areaHectares: 800,
+
+  // 1ª Safra (Soja)
+  produtividadeSoja: 60,
+  margemLucroSojaPercent: 8,
+  precoVendaSoja: 125,
+
+  // 2ª Safra (Milho)
+  produtividadeMilho: 120,
+  margemLucroMilhoPercent: 2,
+  precoVendaMilho: 50,
+
+  custoTerceirizacao: 300,
+
+  // Legado (serão calculados automaticamente)
+  producaoSoja: undefined,
+  producaoMilho: undefined,
+  margemLucroSoja: undefined,
+  margemLucroMilho: undefined,
 };
 
 export function Calculadora() {
@@ -97,7 +108,7 @@ export function Calculadora() {
 
             {/* Dados de Produção */}
             <div className="space-y-3 border-t pt-4">
-              <h3 className="font-semibold text-sm">Produção Esperada</h3>
+              <h3 className="font-semibold text-sm">1ª Safra - Soja</h3>
 
               <div>
                 <label className="block text-xs font-medium mb-1">Área (hectares)</label>
@@ -110,22 +121,73 @@ export function Calculadora() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1">Produção Soja (sacas)</label>
+                <label className="block text-xs font-medium mb-1">Produtividade (sacas/hectare)</label>
                 <input
                   type="number"
-                  value={inputs.producaoSoja}
-                  onChange={(e) => handleInputChange('producaoSoja', e.target.value)}
+                  value={inputs.produtividadeSoja || ''}
+                  onChange={(e) => handleInputChange('produtividadeSoja', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-background"
+                  placeholder="Ex: 60"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1">Produção Milho (sacas)</label>
+                <label className="block text-xs font-medium mb-1">Margem de Lucro (%)</label>
                 <input
                   type="number"
-                  value={inputs.producaoMilho}
-                  onChange={(e) => handleInputChange('producaoMilho', e.target.value)}
+                  value={inputs.margemLucroSojaPercent || ''}
+                  onChange={(e) => handleInputChange('margemLucroSojaPercent', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-background"
+                  placeholder="Ex: 8"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium mb-1">Preço de Venda (R$/saca)</label>
+                <input
+                  type="number"
+                  value={inputs.precoVendaSoja || ''}
+                  onChange={(e) => handleInputChange('precoVendaSoja', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                  placeholder="Ex: 125"
+                />
+              </div>
+            </div>
+
+            {/* 2ª Safra */}
+            <div className="space-y-3 border-t pt-4">
+              <h3 className="font-semibold text-sm">2ª Safra - Milho</h3>
+
+              <div>
+                <label className="block text-xs font-medium mb-1">Produtividade (sacas/hectare)</label>
+                <input
+                  type="number"
+                  value={inputs.produtividadeMilho || ''}
+                  onChange={(e) => handleInputChange('produtividadeMilho', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                  placeholder="Ex: 120"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium mb-1">Margem de Lucro (%)</label>
+                <input
+                  type="number"
+                  value={inputs.margemLucroMilhoPercent || ''}
+                  onChange={(e) => handleInputChange('margemLucroMilhoPercent', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                  placeholder="Ex: 2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium mb-1">Preço de Venda (R$/saca)</label>
+                <input
+                  type="number"
+                  value={inputs.precoVendaMilho || ''}
+                  onChange={(e) => handleInputChange('precoVendaMilho', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                  placeholder="Ex: 50"
                 />
               </div>
             </div>
