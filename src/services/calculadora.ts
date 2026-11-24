@@ -35,6 +35,9 @@ export function calcularViabilidade(
   const diasPrazoPorSafra = 15; // dias disponíveis para colheita por safra
   const hectaresPorDia = rendimento * horasPorDia; // rendimento em ha/hora × horas/dia
 
+  // Custo de terceirização (padrão: R$ 300/ha se não fornecido)
+  const custoTerceirizacaoPorHa = custoTerceirizacao || 300;
+
   // Estimar custo de operador (padrão: R$ 5.000/mês se máquina ativa)
   const mesesOperacao = areaHectares > 0 ? 1 : 0; // 1 mês de operação
   const salarioMensalOperador = 5000;
@@ -65,7 +68,7 @@ export function calcularViabilidade(
   const sacasMinimosAnual = margemMediaSoja > 0 ? Math.ceil(custoFixo / margemMediaSoja) : 0;
 
   // Para vencer terceirização: receita deve superar custo de terceirizar
-  const custoTerceirizacaoAnual = custoTerceirizacao * areaHectares;
+  const custoTerceirizacaoAnual = custoTerceirizacaoPorHa * areaHectares;
   const margemVantagem = receitaSoja + receitaMilho - custoTerceirizacaoAnual;
   const sacasParaVencerTerceirizacao = margemMediaSoja > 0
     ? Math.ceil((custoTerceirizacaoAnual + custoFixo) / margemMediaSoja)
