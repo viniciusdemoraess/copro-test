@@ -1,13 +1,23 @@
 export interface CalculadoraInputs {
   classeId: string;
   areaHectares: number;
-  producaoSoja: number; // em sacas
-  producaoMilho: number; // em sacas
-  margemLucroSoja: number; // R$/saca
-  margemLucroMilho: number; // R$/saca
-  custoTerceirizacao: number; // R$/hora ou total
+
+  // 1ª Safra (Soja)
+  produtividadeSoja: number; // sacas/hectare
+  margemLucroSojaPercent: number; // percentual (%)
   precoVendaSoja: number; // R$/saca
+
+  // 2ª Safra (Milho)
+  produtividadeMilho: number; // sacas/hectare
+  margemLucroMilhoPercent: number; // percentual (%)
   precoVendaMilho: number; // R$/saca
+
+  // Legado (manter compatibilidade)
+  producaoSoja?: number; // em sacas (calculado automaticamente)
+  producaoMilho?: number; // em sacas (calculado automaticamente)
+  margemLucroSoja?: number; // R$/saca (calculado automaticamente)
+  margemLucroMilho?: number; // R$/saca (calculado automaticamente)
+  custoTerceirizacao?: number; // R$/ha
 }
 
 export interface CalculadoraResult {

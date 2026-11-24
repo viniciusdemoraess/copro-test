@@ -5,16 +5,25 @@ export function calcularViabilidade(
   classe: Class,
   inputs: CalculadoraInputs
 ): CalculadoraDetalhes {
-  const {
-    areaHectares,
-    producaoSoja,
-    producaoMilho,
-    margemLucroSoja,
-    margemLucroMilho,
-    custoTerceirizacao,
-    precoVendaSoja,
-    precoVendaMilho,
-  } = inputs;
+  // Extrair inputs - suportar novo formato (produtividade + margem %) e legado (produção em sacas)
+  const areaHectares = inputs.areaHectares;
+
+  // 1ª Safra (Soja)
+  const produtividadeSoja = inputs.produtividadeSoja || (inputs.producaoSoja && inputs.areaHectares ? inputs.producaoSoja / inputs.areaHectares : 0);
+  const margemSojaPercent = inputs.margemLucroSojaPercent ?? (inputs.margemLucroSoja ? (inputs.margemLucroSoja / (inputs.precoVendaSoja || 1)) * 100 : 0);
+  const precoVendaSoja = inputs.precoVendaSoja || 0;
+  const producaoSoja = produtividadeSoja * areaHectares;
+  const margemLucroSoja = (margemSojaPercent / 100) * precoVendaSoja;
+
+  // 2ª Safra (Milho)
+  const produtividadeMilho = inputs.produtividadeMilho || (inputs.producaoMilho && inputs.areaHectares ? inputs.producaoMilho / inputs.areaHectares : 0);
+  const margemMilhoPercent = inputs.margemLucroMilhoPercent ?? (inputs.margemLucroMilho ? (inputs.margemLucroMilho / (inputs.precoVendaMilho || 1)) * 100 : 0);
+  const precoVendaMilho = inputs.precoVendaMilho || 0;
+  const producaoMilho = produtividadeMilho * areaHectares;
+  const margemLucroMilho = (margemMilhoPercent / 100) * precoVendaMilho;
+
+  // Terceirização
+  const custoTerceirizacao = inputs.custoTerceirizacao || 0;
 
   // Valores padrão se não fornecidos
   const vaultUtil = classe.vida_util_anos || 10;
