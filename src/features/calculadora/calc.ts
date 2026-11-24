@@ -60,6 +60,45 @@ function lucroHectare2(data: WizardFormData): number {
   return (receita * lucroPercent) / 100;
 }
 
+// Margem de lucro em R$/saca para a 1ª safra
+function margemLucroSacas1(data: WizardFormData): number {
+  const lucroPercent = n(data.lucro_1safra);
+  const preco = n(data.preco_1safra);
+  return (lucroPercent / 100) * preco;
+}
+
+// Margem de lucro em R$/saca para a 2ª safra
+function margemLucroSacas2(data: WizardFormData): number {
+  const lucroPercent = n(data.lucro_2safra);
+  const preco = n(data.preco_2safra);
+  return (lucroPercent / 100) * preco;
+}
+
+// Custo total anual SEM FINANCIAMENTO: amortização + manutenção + seguro + operador
+function custoAnualSemFinanciamento(data: WizardFormData): number {
+  const valor = n(data.valor_maquina);
+  const vidaUtil = 10; // anos
+  const manOcent = 50; // % (do banco de dados)
+  const seguroPercent = 1; // % (do banco de dados)
+
+  // Componentes do custo anual
+  const amortizacao = valor / vidaUtil;
+  const manutencao = (valor * manOcent) / 100;
+  const seguro = (valor * seguroPercent) / 100;
+
+  // Custo do operador
+  const pessoas = n(data.pessoas_colheitora);
+  const salarioPessoa = n(data.salario_pessoa);
+  const encargosPercent = n(data.encargos);
+  const adicionalPessoa = n(data.adicional_pessoa);
+  const mesesOperacao = 1; // 1 mês de operação
+
+  const custoMesOperador = salarioPessoa * (1 + encargosPercent / 100) + adicionalPessoa;
+  const custoOperadorAnual = pessoas * custoMesOperador * mesesOperacao;
+
+  return amortizacao + manutencao + seguro + custoOperadorAnual;
+}
+
 // Custo total de terceirização acumulado na janela de análise.
 function custoTerceirizadaAcumulado(data: WizardFormData, anos: number): number {
   const custo = n(data.custo_terceirizada);
@@ -90,11 +129,30 @@ function custoMaquinaPropria(data: WizardFormData): number {
 
 export function computeViability(data: WizardFormData): ViabilityResult {
   const anos = JANELA_ANOS;
-  const receitaAcumulada = receitaAnual(data) * anos;
 
-  const custoPropria = custoMaquinaPropria(data);
+  // RECEITA ANUAL (baseada na margem de lucro em R$/saca)
+  const area1 = n(data.area_1safra);
+  const area2 = n(data.area_2safra);
+  const prod1 = n(data.prod_1safra);
+  const prod2 = n(data.prod_2safra);
+
+  const producaoTotal1 = area1 * prod1; // sacas
+  const producaoTotal2 = area2 * prod2; // sacas
+
+  const margemSacas1 = margemLucroSacas1(data); // R$/saca
+  const margemSacas2 = margemLucroSacas2(data); // R$/saca
+
+  const receitaAnualPropia = (producaoTotal1 * margemSacas1) + (producaoTotal2 * margemSacas2);
+  const receitaAcumulada = receitaAnualPropia * anos;
+
+  // CUSTOS PRÓPRIA (SEM FINANCIAMENTO): depreciação + manutenção + seguro + operador
+  const custoAnualPropia = custoAnualSemFinanciamento(data);
+  const custoPropria = custoAnualPropia * anos;
+
+  // CUSTO TERCEIRIZAÇÃO
   const custoTerceirizada = custoTerceirizadaAcumulado(data, anos);
 
+  // RESULTADOS
   const resultadoPropria = receitaAcumulada - custoPropria;
   const resultadoTerceirizada = receitaAcumulada - custoTerceirizada;
 
