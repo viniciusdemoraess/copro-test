@@ -45,11 +45,13 @@ export function calcularViabilidade(
   const custoOperadorComEncargos = salarioMensalOperador * (1 + encargosTrabalhistosPercent / 100);
   const custoOperadorAnual = mesesOperacao * custoOperadorComEncargos;
 
+  // CUSTO TOTAL ANUAL SEM FINANCIAMENTO
+  // Inclui: depreciação, manutenção, seguro e mão de obra com encargos
   const custosAnuais =
-    custoAmortizadoAnual +
-    custoManutencaoAnual +
-    custoSeguroAnual +
-    custoOperadorAnual;
+    custoAmortizadoAnual +      // Depreciação anual (preço ÷ vida útil)
+    custoManutencaoAnual +      // Manutenção anual (% do preço)
+    custoSeguroAnual +          // Seguro anual (% do preço)
+    custoOperadorAnual;         // Operador + encargos trabalhistas (1 mês)
 
   // ===== RECEITAS =====
   const receitaSoja = producaoSoja * margemLucroSoja;

@@ -14,15 +14,15 @@ export interface CalculadoraResult {
   viavel: boolean;
   margemVantagem: number; // quanto mais vale comprar do que terceirizar
   lucroBrutoAnual: number;
-  custosAnuais: number;
+  custosAnuais: number; // CUSTO TOTAL ANUAL SEM FINANCIAMENTO
   lucroLiquido: number;
 
-  // Detalhamentos
-  custoInicial: number; // valor de compra
-  custoAmortizadoAnual: number; // custo dividido por anos de vida útil
-  custoManutencaoAnual: number;
-  custoSeguroAnual: number;
-  custoOperadorAnual: number;
+  // Detalhamentos de custos
+  custoInicial: number; // valor de compra da máquina
+  custoAmortizadoAnual: number; // depreciação anual (preço / vida útil)
+  custoManutencaoAnual: number; // manutenção anual
+  custoSeguroAnual: number; // seguro anual
+  custoOperadorAnual: number; // operador + encargos trabalhistas
 
   // Receitas
   receitaSoja: number;
